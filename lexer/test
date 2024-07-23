@@ -1,0 +1,9 @@
+function test(int val1, bool val2) {
+    write(val1);
+    int val3;
+    val3 = val1 + val2 / val1;
+    if (val3 >= val2 == true) write(+1) else write(-2) 
+    return val3;
+}
+
+test();
