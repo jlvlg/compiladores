@@ -5,117 +5,95 @@ class Parser:
     def __init__(self) -> None:
         self.syntaxtable = {
             "program": {
-                TokenType.ID: ["program", "cmdblock"], 
-                TokenType.IF: ["program", "cmdblock"],
-                TokenType.WHILE: ["program", "cmdblock"],
-                TokenType.BREAK: ["program", "cmdblock"],
-                TokenType.CONTINUE: ["program", "cmdblock"],
-                TokenType.WRITE: ["program", "cmdblock"],
-                TokenType.READ: ["program", "cmdblock"],
-                TokenType.TYPE: ["program", "cmdblock"],
-                TokenType.PROCEDURE: ["program", self._procdef],
-                TokenType.FUNCTION: ["program", self._fundef],
+                "cmd": ["cmd_block", "program"],
+                TokenType.PROCEDURE: [self._procedure, self._id, TokenType.POPEN, self._params, TokenType.PCLOSE, "block", "program"],
+                TokenType.FUNCTION: [self._function, self._type, self._id, TokenType.POPEN, self._params, TokenType.PCLOSE, "block", "program"],
                 TokenType.END: [],
             },
-            "cmd": {
-                TokenType.ID: {
-                    TokenType.ASSIGN: ["cmd", TokenType.SEMICOLON, "assign"],
-                    TokenType.POPEN: ["cmd", TokenType.SEMICOLON, "proccall"],
-                },
-                TokenType.TYPE: ["cmd", TokenType.SEMICOLON, self._vardef],
-                TokenType.IF: ["cmd", "cond"],
-                TokenType.WHILE: ["cmd", "loop"],
-                TokenType.BREAK: ["cmd", TokenType.SEMICOLON, TokenType.BREAK],
-                TokenType.CONTINUE: ["cmd", TokenType.SEMICOLON, TokenType.CONTINUE],
-                TokenType.WRITE: ["cmd", TokenType.SEMICOLON, "write"],
-                TokenType.READ: ["cmd", TokenType.SEMICOLON, "read"],
-                TokenType.RETURN: ["cmd", "return"],
-            },
-            "cmdblock": {
-                "cmd": ["cmdblock", "cmd"],
-                TokenType.EMPTY: []
-            },
-            "procdef": {
-                TokenType.PROCEDURE: ["block", TokenType.PCLOSE, "params", TokenType.POPEN, self._id, TokenType.PROCEDURE],
-            },
-            "fundef": {
-                TokenType.FUNCTION: ["block", TokenType.PCLOSE, "params", TokenType.POPEN, self._id, self._type, TokenType.FUNCTION],
+            "var_def": {
+                TokenType.TYPE: [self._type, self._id],
             },
             "params": {
-                TokenType.TYPE: [self._paramsseparator, self._vardef],
-                TokenType.EMPTY: [],
+                "var_def": [self._var_def, "params_separator"],
+                TokenType.EMPTY: []
             },
-            "vardef": {
-                TokenType.TYPE: [self._id, self._type],
-            },
-            "paramsseparator": {
-                TokenType.COMMA: [self._paramsseparator, self._vardef, TokenType.COMMA],
+            "params_separator": {
+                TokenType.COMMA: [TokenType.COMMA, self._var_def, "params_separator"],
                 TokenType.EMPTY: [],
             },
             "block": {
-                TokenType.BOPEN: [TokenType.BCLOSE, "cmd", TokenType.BOPEN],
+                TokenType.BOPEN: [TokenType.BOPEN, "cmd_block", self._bclose]
             },
-            "assign": {
-                TokenType.ID: ["expr", TokenType.ASSIGN, self._id]
-            },
-            "proccall": {
-                TokenType.ID: [TokenType.PCLOSE, "args", TokenType.POPEN, self._id]
-            },
-            "args": {
-                "expr": ["args_separator", "expr"],
-                TokenType.EMPTY: [],
-            },
-            "args_separator": {
-                TokenType.COMMA: ["args_separator", "expr", TokenType.COMMA],
-                TokenType.EMPTY: [],
-            },
-            "cond": {
-                TokenType.IF: ["elsecond", "block", TokenType.PCLOSE, "expr", TokenType.POPEN, self._if]
-            },
-            "elsecond": {
-                TokenType.ELSE: ["block", self._else],
-                TokenType.EMPTY: [],
-            },
-            "return": {
-                TokenType.RETURN: [TokenType.SEMICOLON, "expr", TokenType.RETURN],
-            },
-            "expr": {
-                TokenType.POPEN: ["expr_2", TokenType.PCLOSE, "expr", TokenType.POPEN],
-                TokenType.NUM: ["expr_2", TokenType.NUM],
-                TokenType.BOOL: ["expr_2", TokenType.BOOL],
-                TokenType.READ: ["expr_2", "read"],
-                TokenType.ID: {
-                    TokenType.POPEN: ["expr_2", "funccall"],
-                    TokenType.EMPTY: ["expr_2", self._id],
-                }
-            },
-            "expr_2": {
-                TokenType.AND: ["expr", TokenType.AND],
-                TokenType.OR: ["expr", TokenType.OR],
-                TokenType.EQUAL: ["expr", TokenType.EQUAL],
-                TokenType.NOTEQUAL: ["expr", TokenType.NOTEQUAL],
-                TokenType.GREATEREQUAL: ["expr", TokenType.GREATEREQUAL],
-                TokenType.LESSEQUAL: ["expr", TokenType.LESSEQUAL],
-                TokenType.GREATER: ["expr", TokenType.GREATER],
-                TokenType.LESS: ["expr", TokenType.LESS],
-                TokenType.SUM: ["expr", TokenType.SUM],
-                TokenType.SUB: ["expr", TokenType.SUB],
-                TokenType.MUL: ["expr", TokenType.MUL],
-                TokenType.DIV: ["expr", TokenType.DIV],
+            "cmd_block": {
+                "cmd": ["cmd", "cmd_block"],
                 TokenType.EMPTY: []
             },
-            "funccall": {
-                TokenType.ID: [TokenType.PCLOSE, "args", TokenType.POPEN, self._id],
+            "cmd": {
+                TokenType.ID: {
+                    TokenType.ASSIGN: [self._id, TokenType.ASSIGN, "expr", TokenType.SEMICOLON],
+                    TokenType.POPEN: [self._id, TokenType.POPEN, "args", TokenType.PCLOSE, TokenType.SEMICOLON],
+                },
+                TokenType.IF: [self._if, "expr", "block", "else"],
+                TokenType.WHILE: [self._while, "expr", "block"],
+                TokenType.BREAK: [TokenType.BREAK, TokenType.SEMICOLON],
+                TokenType.CONTINUE: [TokenType.CONTINUE, TokenType.SEMICOLON],
+                "var_def": [self._var_def, TokenType.SEMICOLON],
+                TokenType.WRITE: [TokenType.WRITE, TokenType.POPEN, "expr", TokenType.PCLOSE, TokenType.SEMICOLON],
+                "read": ["read", TokenType.SEMICOLON],
+                TokenType.RETURN: [TokenType.RETURN, "expr", TokenType.SEMICOLON],
+            },
+            "else": {
+                TokenType.ELSE: [self._else, "block"],
+                TokenType.EMPTY: [],
+            },
+            "log_op": {
+                TokenType.AND: [TokenType.AND],
+                TokenType.OR: [TokenType.OR],
+            },
+            "rel_op": {
+                TokenType.EQUAL: [TokenType.EQUAL],
+                TokenType.NOTEQUAL: [TokenType.NOTEQUAL],
+                TokenType.GREATEREQUAL: [TokenType.GREATEREQUAL],
+                TokenType.LESSEQUAL: [TokenType.LESSEQUAL],
+                TokenType.GREATER: [TokenType.GREATER],
+                TokenType.LESS: [TokenType.LESS],
+            },
+            "math_op": {
+                TokenType.SUM: [TokenType.SUM],
+                TokenType.SUB: [TokenType.SUB],
+                TokenType.MUL: [TokenType.MUL],
+                TokenType.DIV: [TokenType.DIV],
+            },
+            "expr": {
+                TokenType.POPEN: [TokenType.POPEN, "expr", TokenType.PCLOSE, "expr_2"],
+                TokenType.NUM: [TokenType.NUM, "expr_2"],
+                TokenType.BOOL: [TokenType.BOOL, "expr_2"],
+                TokenType.ID: {
+                    TokenType.POPEN: ["fun_call", "expr_2"],
+                    TokenType.EMPTY: [self._id, "expr_2"],
+                },
+                "read": ["read", "expr_2"],
+            },
+            "expr_2": {
+                "log_op": ["log_op", "expr"],
+                "rel_op": ["rel_op", "expr"],
+                "math_op": ["math_op", "expr"],
+                TokenType.EMPTY: []
+            },
+            "fun_call": {
+                TokenType.ID: [self._id, TokenType.POPEN, "args", TokenType.PCLOSE],
             },
             "read": {
-                TokenType.READ: [TokenType.PCLOSE, TokenType.POPEN, TokenType.READ]
+                TokenType.READ: [TokenType.READ, TokenType.POPEN, TokenType.PCLOSE]
             },
-            "write": {
-                TokenType.WRITE: [TokenType.PCLOSE, "expr", TokenType.POPEN, TokenType.WRITE]
+            "args": {
+                "expr": ["expr", "args_separator"],
+                TokenType.EMPTY: []
             },
-            "loop": {
-                TokenType.WHILE: ["block", TokenType.PCLOSE, "expr", TokenType.POPEN, self._while]
-            }
+            "args_separator": {
+                TokenType.COMMA: [TokenType.COMMA, "expr", "args_separator"],
+                TokenType.EMPTY: [],
+            },
         }
 
     def parse(self, tokens: list[Token]):
@@ -139,23 +117,24 @@ class Parser:
         self.current += n
 
     def _token(self, n: int = 0):
-        if self.current + n > len(self.tokens) - 1:
-            print("Could not fetch lookahead")
+        if self.current + n >= len(self.tokens):
+            print("Could not fetch next symbol")
             exit(1)
         return self.tokens[self.current + n]
 
     def _getTable(self, prod: str, token: Token):
         table = self.syntaxtable[prod]
-        for x in table.keys():
-            if not isinstance(x, TokenType):
-                table = table | self.syntaxtable[x]
-        self._check(token, self.syntaxtable[prod])
-        next = self.syntaxtable[prod].get(token.type, [])
+        while not all(isinstance(prod, TokenType) for prod in table):
+            for prod in table:
+                if not isinstance(prod, TokenType):
+                    table = {x:table[x] for x in table if x != prod} | {y: table[prod] for y in self.syntaxtable[prod]}
+        self._check(token, table)
+        next = table.get(token.type, [])
         if isinstance(next, dict):
             lookahead = self._token(1)
             self._check(lookahead, next.keys())
             next = next.get(lookahead.type, next.get(TokenType.EMPTY))
-        return next
+        return next[::-1]
 
     def _check(self, token: Token, types: list[TokenType]):
         if token.type not in types and TokenType.EMPTY not in types:
@@ -166,7 +145,7 @@ class Parser:
         self._check(self._token(), [type])
         self._forward()
 
-    def _extendStack(self, prod):
+    def _extendStack(self, prod: str):
         self.stack.extend(self._getTable(prod, self._token()))
     
     def _openScope(self):
@@ -175,19 +154,21 @@ class Parser:
     def _closeScope(self):
         self.scopes.pop()
 
-    def _procdef(self):
+    def _procedure(self):
         self.building = {"what": "procedure"}
-        self._extendStack("procdef")
-        self._openScope()
+        self._consume(TokenType.PROCEDURE)
 
-    def _fundef(self):
+    def _function(self):
         self.building = {"what": "function"}
-        self._extendStack("fundef")
-        self._openScope()
+        self._consume(TokenType.FUNCTION)
 
-    def _vardef(self):
+    def _params(self):
+        self._openScope()
+        self._extendStack("params")
+
+    def _var_def(self):
         self.building = {"what": "variable"}
-        self._extendStack("vardef")
+        self._extendStack("var_def")
 
     def _if(self):
         self._openScope()
@@ -224,9 +205,9 @@ class Parser:
         self._forward()
     
     def _type(self):
-        self._check(self._token(), [TokenType.TYPE])
         self.building["type"] = self._token().lexeme
-        self._forward()
-    
-    def _paramsseparator(self):
-        self._extendStack("paramsseparator")
+        self._consume(TokenType.TYPE)
+
+    def _bclose(self):
+        self._closeScope()
+        self._consume(TokenType.BCLOSE)

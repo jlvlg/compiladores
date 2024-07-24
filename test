@@ -1,6 +1,5 @@
 int a;
 a = 2;
-+
 
 function int test(int val1, bool val2) {
     write(val1);
@@ -11,4 +10,4 @@ function int test(int val1, bool val2) {
     return val3;
 }
 
-test();
+a = test();
