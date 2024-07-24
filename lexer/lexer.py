@@ -1,36 +1,69 @@
-from token_instance import LexerToken, TokenType
+from .token_instance import Token, TokenType
 
 
 class Lexer:
-    def __init__(self, keywords: dict[str, TokenType], symbols: dict[str, TokenType]):
-        self.keywords = keywords
-        self.symbols = symbols
+    def __init__(self):
+        self.keywords = {
+            "true": TokenType.BOOL,
+            "false": TokenType.BOOL,
+            "int": TokenType.TYPE,
+            "bool": TokenType.TYPE,
+            "procedure": TokenType.PROCEDURE,
+            "function": TokenType.FUNCTION,
+            "if": TokenType.IF,
+            "else": TokenType.ELSE,
+            "return": TokenType.RETURN,
+            "while": TokenType.WHILE,
+            "break": TokenType.BREAK,
+            "continue": TokenType.CONTINUE,
+            "write": TokenType.WRITE,
+            "read": TokenType.READ,
+        }
+        self.symbols = {
+            "(": TokenType.POPEN,
+            ")": TokenType.PCLOSE,
+            "{": TokenType.BOPEN,
+            "}": TokenType.BCLOSE,
+            ",": TokenType.COMMA,
+            ";": TokenType.SEMICOLON,
+            "=": TokenType.ASSIGN,
+            "&&": TokenType.AND,
+            "||": TokenType.OR,
+            "==": TokenType.EQUAL,
+            "!=": TokenType.NOTEQUAL,
+            ">=": TokenType.GREATEREQUAL,
+            "<=": TokenType.LESSEQUAL,
+            ">": TokenType.GREATER,
+            "<": TokenType.LESS,
+            "+": TokenType.SUM,
+            "-": TokenType.SUB,
+            "*": TokenType.MUL,
+            "/": TokenType.DIV,
+        }
 
-    def scan(self, program: str) -> list[LexerToken]:
+    def scan(self, program: str) -> tuple[list[Token], list[dict], bool]:
         self.program = program
-        self.tokens: list[LexerToken] = []
-        self.line = 1
-        self.length = len(program)
+        self.tokens: list[Token] = []
         self.current = 0
         self.line = 1
         self.pos = 1
-        while self.current < self.length:
+        while self.current < len(self.program):
             token = self._scanNextToken()
             if token is not None:
                 self.tokens.append(token)
         self.tokens.append(self._createToken(TokenType.END, "\n"))
         return self.tokens
 
-    def _createToken(self, type: TokenType, lexeme: str) -> LexerToken:
-        return LexerToken(type, lexeme, self.line, self.pos - len(lexeme), self.pos - 1)
+    def _createToken(self, type: TokenType, lexeme: str) -> Token:
+        return Token(type, lexeme, self.line, self.pos - len(lexeme), self.pos - 1)
 
     def _forward(self, n: int = 1) -> None:
         for _ in range(n):
             self.current += 1
             self.pos += 1
 
-    def _scanNextToken(self) -> LexerToken:
-        while self.current < self.length:
+    def _scanNextToken(self) -> Token:
+        while self.current < len(self.program):
             match char := self.program[self.current]:
                 case " ":
                     self._forward()
@@ -45,7 +78,7 @@ class Lexer:
                 case "+" | "-" if self.program[self.current + 1].isnumeric():
                     self._forward()
                     return self._matchNum(char)
-                case char if self.current < self.length - 1 and (
+                case char if self.current < len(self.program) - 1 and (
                     symbol := char + self.program[self.current + 1]
                 ) in self.symbols:
                     self._forward(2)
@@ -54,20 +87,18 @@ class Lexer:
                     self._forward()
                     return self._createToken(self.symbols[char], char)
                 case _:
-                    print(f"Unrecognized character at {self.line}:{self.pos} ")
-                    exit(1)
+                    raise Exception(f"Unrecognized symbol: {char} at {self.line}:{self.pos}")
 
-    def _matchAlpha(self) -> LexerToken:
+    def _matchAlpha(self) -> Token:
         lexeme = ""
-        type = TokenType.ID
         while (char := self.program[self.current]).isalnum():
+            self._forward()
             lexeme += char
             if lexeme in self.keywords:
-                type = self.keywords[lexeme]
-            self._forward()
-        return self._createToken(type, lexeme)
+                return self._createToken(self.keywords[lexeme], lexeme)
+        return self._createToken(TokenType.ID, lexeme)
 
-    def _matchNum(self, signal: str = "") -> LexerToken:
+    def _matchNum(self, signal: str = "") -> Token:
         lexeme = f"{signal}"
         while (char := self.program[self.current]).isnumeric():
             lexeme += char

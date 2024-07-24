@@ -1,6 +1,7 @@
 # type: ignore
 from enum import StrEnum, auto
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional
 
 
 class TokenType(StrEnum):
@@ -38,12 +39,14 @@ class TokenType(StrEnum):
     DIV = auto()
     READ = auto()
     END = auto()
+    EMPTY = auto()
 
 
 @dataclass
-class LexerToken:
+class Token:
     type: TokenType
     lexeme: str
     line: int
     start: int
     end: int
+    table_i: int | None = field(default=None, init=False)
