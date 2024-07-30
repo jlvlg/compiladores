@@ -6,18 +6,18 @@ from typing import Optional
 
 class TokenType(StrEnum):
     BOOL = auto()
-    NUM = auto()
+    NUM = "number"
     ID = auto()
     TYPE = auto()
     PROCEDURE = auto()
     FUNCTION = auto()
-    POPEN = auto()
-    PCLOSE = auto()
-    BOPEN = auto()
-    BCLOSE = auto()
-    COMMA = auto()
-    SEMICOLON = auto()
-    ASSIGN = auto()
+    POPEN = "("
+    PCLOSE = ")"
+    BOPEN = "{"
+    BCLOSE = "}"
+    COMMA = ","
+    SEMICOLON = ";"
+    ASSIGN = "="
     IF = auto()
     ELSE = auto()
     RETURN = auto()
@@ -25,18 +25,18 @@ class TokenType(StrEnum):
     BREAK = auto()
     CONTINUE = auto()
     WRITE = auto()
-    AND = auto()
-    OR = auto()
-    EQUAL = auto()
-    NOTEQUAL = auto()
-    GREATEREQUAL = auto()
-    LESSEQUAL = auto()
-    GREATER = auto()
-    LESS = auto()
-    SUM = auto()
-    SUB = auto()
-    MUL = auto()
-    DIV = auto()
+    AND = "&&"
+    OR = "||"
+    EQUAL = "=="
+    NOTEQUAL = "!="
+    GREATEREQUAL = ">="
+    LESSEQUAL = "<="
+    GREATER = ">"
+    LESS = "<"
+    SUM = "+"
+    SUB = "-"
+    MUL = "*"
+    DIV = "/"
     READ = auto()
     END = auto()
     EMPTY = auto()
@@ -47,6 +47,5 @@ class Token:
     type: TokenType
     lexeme: str
     line: int
-    start: int
-    end: int
+    pos: int
     table_i: int | None = field(default=None, init=False)

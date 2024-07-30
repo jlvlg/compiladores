@@ -98,6 +98,11 @@ class Parser:
             last = last.__name__ if callable(last) else last
             stack = " ".join([x.__name__ if callable(x) else x for x in self.stack] + [f"\033[{color}m" + last + "\033[0m"])
             print(stack)
+    
+    def error(self, token, message):
+        print(" ".join([f"{"\033[4;31m" if t.pos == token.pos else ""}{t.lexeme}\033[0m" for t in self.tokens if t.line == token.line]))
+        print(f"\nSyntax error at {token.line}:{token.pos}. {message}.")
+        exit(1)
 
     def parse(self, tokens: list[Token], debug: bool = False):
         self.tokens = tokens
@@ -145,8 +150,7 @@ class Parser:
 
     def _check(self, token: Token, types: list[TokenType]):
         if token.type not in types and TokenType.EMPTY not in types:
-            print(f"Syntax error at {token.line}:{token.start}. Expected {', '.join(types)}. Got {token.type}.")
-            exit(1)
+            self.error(token, f"Expected {', '.join([f"\"{type}\"" for type in types])}. Got \"{token.type}\"")
     
     def _consume(self, type: TokenType):
         self._check(self._token(), [type])
@@ -198,15 +202,14 @@ class Parser:
             token.table_i = len(self.table) - 1
             self.building["token"] = token
             if self.building["id"] in chain.from_iterable(self.scopes):
-                print(f"{self.building["id"]} already defined")
+                self.error(token, f"\"{token.lexeme}\" already defined")
                 exit(1)
             self.scopes[-1].append(self.building["id"])
         else:
             if token.lexeme in chain.from_iterable(self.scopes):
                 token.table_i = [x["id"] for x in self.table].index(token.lexeme)
             else:
-                print(f"Accessing undefined object {token.lexeme} at line {token.line} pos {token.start}:{token.end}")
-                exit(1)
+                self.error(token, f"Accessing undefined object \"{token.lexeme}\" at {token.line}:{token.pos}")
 
         self.building = {}
         self._forward()

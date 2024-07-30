@@ -55,7 +55,7 @@ class Lexer:
         return self.tokens
 
     def _createToken(self, type: TokenType, lexeme: str) -> Token:
-        return Token(type, lexeme, self.line, self.pos - len(lexeme), self.pos - 1)
+        return Token(type, lexeme, self.line, self.pos - len(lexeme))
 
     def _forward(self, n: int = 1) -> None:
         for _ in range(n):
@@ -87,7 +87,10 @@ class Lexer:
                     self._forward()
                     return self._createToken(self.symbols[char], char)
                 case _:
-                    raise Exception(f"Unrecognized symbol: {char} at {self.line}:{self.pos}")
+                    text = self.program.splitlines()[self.line - 1]
+                    print(text[:self.pos - 1] + "\033[4;31m" + char + "\033[0m" + text[self.pos:])
+                    print(f"\nLexical error at {self.line}:{self.pos}. Unrecognized symbol: {char}")
+                    exit(1)
 
     def _matchAlpha(self) -> Token:
         lexeme = ""
