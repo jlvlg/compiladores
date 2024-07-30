@@ -1,6 +1,5 @@
 from lexer.token_instance import Token, TokenType
 from itertools import chain
-from pprint import pprint
 
 class Parser:
     def __init__(self) -> None:
@@ -94,23 +93,30 @@ class Parser:
             },
         }
 
+    def debug(self, last, color):
+        if self.debugging:
+            last = last.__name__ if callable(last) else last
+            stack = " ".join([x.__name__ if callable(x) else x for x in self.stack] + [f"\033[{color}m" + last + "\033[0m"])
+            print(stack)
+
     def parse(self, tokens: list[Token], debug: bool = False):
         self.tokens = tokens
         self.current = 0
         self.table = []
+        self.debugging = debug
         self.scopes = [[]]
         self.building = {}
         self.stack = ["program"]
         while len(self.stack) > 0:
-            if debug:
-                print([x.__name__ if callable(x) else x for x in self.stack])
-                print()
             next = self.stack.pop()
             if isinstance(next, TokenType):
+                self.debug(next, 31)
                 self._consume(next)
             elif isinstance(next, str):
+                self.debug(next, 34)
                 self._extendStack(next)
             else:
+                self.debug(next, 32)
                 next()
         return self.tokens, self.table
 
