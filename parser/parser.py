@@ -69,7 +69,7 @@ class Parser:
                 TokenType.NUM: [TokenType.NUM, "expr_2"],
                 TokenType.BOOL: [TokenType.BOOL, "expr_2"],
                 TokenType.ID: {
-                    TokenType.POPEN: ["fun_call", "expr_2"],
+                    TokenType.POPEN: [self._id, TokenType.POPEN, "args", TokenType.PCLOSE, "expr_2"],
                     TokenType.EMPTY: [self._id, "expr_2"],
                 },
                 "read": ["read", "expr_2"],
@@ -79,9 +79,6 @@ class Parser:
                 "rel_op": ["rel_op", "expr"],
                 "math_op": ["math_op", "expr"],
                 TokenType.EMPTY: []
-            },
-            "fun_call": {
-                TokenType.ID: [self._id, TokenType.POPEN, "args", TokenType.PCLOSE],
             },
             "read": {
                 TokenType.READ: [TokenType.READ, TokenType.POPEN, TokenType.PCLOSE]
