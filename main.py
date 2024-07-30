@@ -4,4 +4,4 @@ from pprint import pprint
 
 with open('test') as f:
     tokens = Lexer().scan(f.read())
-    pprint(Parser().parse(tokens))
+    Parser().parse(tokens, True)

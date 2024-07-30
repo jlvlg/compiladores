@@ -10,4 +10,4 @@ function int test(int val1, bool val2) {
     return val3;
 }
 
-a = test();
+a = test(1,2);
