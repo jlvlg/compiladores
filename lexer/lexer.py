@@ -94,7 +94,7 @@ class Lexer:
 
     def _matchAlpha(self) -> Token:
         lexeme = ""
-        while (char := self.program[self.current]).isalnum():
+        while self.current < len(self.program) and (char := self.program[self.current]).isalnum():
             self._forward()
             lexeme += char
             if lexeme in self.keywords:

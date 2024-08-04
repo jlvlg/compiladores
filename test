@@ -4,10 +4,30 @@ a = 2;
 function int test(int val1, bool val2) {
     write(val1);
     int val3;
+
     val3 = val1 + val2 / read();
-    if (val3 >= val2 == true) {write(+1);} else {write(val3);} 
+
+    if val3 >= val2 == true {
+        write(+1);
+    } else {
+        if (val3 > val1) {
+            write(val3);
+        }
+    }
+    
     if (val3) {}
+
     return val3;
 }
 
-a = test(1,2);
+procedure test2(int val3, int val9) {
+    while true {
+        write(val3);
+        val3 = val3 + 1;
+        if (val3 > val9) {
+            break;
+        }
+    }
+}
+
+a = test();

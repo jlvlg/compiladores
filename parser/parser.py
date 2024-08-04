@@ -7,7 +7,7 @@ class Parser:
             "program": {
                 "cmd": ["cmd_block", "program"],
                 TokenType.PROCEDURE: [self._procedure, self._id, TokenType.POPEN, self._params, TokenType.PCLOSE, "block", "program"],
-                TokenType.FUNCTION: [self._function, self._type, self._id, TokenType.POPEN, self._params, TokenType.PCLOSE, "block", "program"],
+                TokenType.FUNCTION: [self._function, self._type, self._id, TokenType.POPEN, self._params, TokenType.PCLOSE, TokenType.BOPEN, "cmd_block", TokenType.RETURN, "expr", TokenType.SEMICOLON, self._bclose, "program"],
                 TokenType.END: [],
             },
             "var_def": {
@@ -40,7 +40,6 @@ class Parser:
                 "var_def": [self._var_def, TokenType.SEMICOLON],
                 TokenType.WRITE: [TokenType.WRITE, TokenType.POPEN, "expr", TokenType.PCLOSE, TokenType.SEMICOLON],
                 "read": ["read", TokenType.SEMICOLON],
-                TokenType.RETURN: [TokenType.RETURN, "expr", TokenType.SEMICOLON],
             },
             "else": {
                 TokenType.ELSE: [self._else, "block"],
@@ -69,8 +68,8 @@ class Parser:
                 TokenType.NUM: [TokenType.NUM, "expr_2"],
                 TokenType.BOOL: [TokenType.BOOL, "expr_2"],
                 TokenType.ID: {
-                    TokenType.POPEN: [self._id, TokenType.POPEN, "args", TokenType.PCLOSE, "expr_2"],
-                    TokenType.EMPTY: [self._id, "expr_2"],
+                    TokenType.POPEN: [lambda: self._id(True), TokenType.POPEN, "args", TokenType.PCLOSE, "expr_2"],
+                    TokenType.EMPTY: [lambda: self._id(True), "expr_2"],
                 },
                 "read": ["read", "expr_2"],
             },
@@ -193,14 +192,13 @@ class Parser:
         self._openScope()
         self._consume(TokenType.WHILE)
     
-    def _id(self):
+    def _id(self, expr: bool = False):
         token = self._token()
         self._check(token, [TokenType.ID])
         if self.building:
             self.building["id"] = token.lexeme
             self.table.append(self.building)
             token.table_i = len(self.table) - 1
-            self.building["token"] = token
             if self.building["id"] in chain.from_iterable(self.scopes):
                 self.error(token, f"\"{token.lexeme}\" already defined")
                 exit(1)
@@ -209,7 +207,9 @@ class Parser:
             if token.lexeme in chain.from_iterable(self.scopes):
                 token.table_i = [x["id"] for x in self.table].index(token.lexeme)
             else:
-                self.error(token, f"Accessing undefined object \"{token.lexeme}\" at {token.line}:{token.pos}")
+                self.error(token, f"Accessing undefined object \"{token.lexeme}\"")
+            if expr and self.table[token.table_i]["what"] == "procedure":
+                self.error(token, f"Procedure returns None type, it cannot be used as an expression")
 
         self.building = {}
         self._forward()
