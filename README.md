@@ -2,24 +2,6 @@
 
 **Compiladores – professora Maria Sibaldo**
 
-**Sumário**
-
-[Legenda:	1](\#legenda:)
-
-[Produções:	1](\#produções:)
-
-[Programa:	1](\#programa:)
-
-[Valores:	1](\#valores:)
-
-[Declarações:	2](\#declarações:)
-
-[Comandos:	2](\#comandos:)
-
-[Operadores:	3](\#operadores:)
-
-[Expressões:	3](\#expressões:)
-
 # **Legenda:** {#legenda:}
 
 * Terminais serão estilizados em negrito  
