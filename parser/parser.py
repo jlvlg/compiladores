@@ -209,7 +209,7 @@ class Parser:
             else:
                 self.error(token, f"Accessing undefined object \"{token.lexeme}\"")
             if expr and self.table[token.table_i]["what"] == "procedure":
-                self.error(token, f"Procedure returns None type, it cannot be used as an expression")
+                self.error(token, f"Procedures return None type, they cannot be used as an expression")
 
         self.building = {}
         self._forward()
