@@ -2,7 +2,7 @@
 
 **Compiladores – professora Maria Sibaldo**
 
-# **Legenda:** {#legenda:}
+# **Legenda:**
 
 * Terminais serão estilizados em negrito  
 * \< e \>: Definem uma variável (símbolo não-terminal);  
@@ -16,16 +16,16 @@
 
 * EOF: É um terminal especial que simboliza o fim do código fonte.
 
-# **Produções:** {#produções:}
+# **Produções:**
 
-## **Programa:** {#programa:}
+## **Programa:**
 
 * \<program\> ::= \<cmd\_block\> \<program\>  
   * **procedure** \<id\> **(** \<params\> **)** \<block\> \<program\>  
   * **function** \<type\> \<id\> **(** \<params\> **)** **{** \<cmd\_block\> **return** \<expr\> **;** **}** \<program\>  
   * EOF
 
-## **Valores:** {#valores:}
+## **Valores:**
 
 * \<d\> ::= **0** | **1** | **2** | **3** | **4** | **5** | **6** | **7** | **8** | **9**  
 * \<c\> ::= **a** | **b** | **c** | **d** | **e** | **f** | **g** | **h** | **i** | **j** | **k** | **l** | **m** | **n** | **o** | **p** | **q** | **r** | **s** | **t** | **u** | **v** | **w** | **x** | **y** | **z** | **A** | **B** | **C** | **D** | **E** | **F** | **G** | **H** | **I** | **J** | **K** | **L** | **M** | **N** | **O** | **P** | **Q** | **R** | **S** | **T** | **U** | **V** | **W** | **X** | **Y** | **Z**  
@@ -34,7 +34,7 @@
 
 ## 
 
-## **Declarações:** {#declarações:}
+## **Declarações:**
 
 * \<id\> ::= \<c\> { \<c\> | \<d\> }  
 * \<type\> ::= **int** | **bool**  
@@ -43,7 +43,7 @@
 * \<params\_separator\> ::= **,** \<var\_def\> \<params\_separator\> |  ε
 
 
-## **Comandos:** {#comandos:}
+## **Comandos:**
 
 * \<block\> ::= **{** \<cmd\_block\> **}**  
 * \<cmd\_block\> ::= \<cmd\> \<cmd\_block\> | ε  
@@ -60,13 +60,13 @@
 
 ## 
 
-## **Operadores:** {#operadores:}
+## **Operadores:**
 
 * \<log\_op\> ::= **&&** | **||**  
 * \<rel\_op\> ::= **\==** | **\!=** | **\>=** | **\<=** | **\>** | **\<**  
 * \<math\_op\> ::= **\+** | **\-** | **\*** | **/**
 
-## **Expressões:** {#expressões:}
+## **Expressões:**
 
 * \<expr\> ::= **(** \<expr\> **)** \<expr\_2\>  
   * \<num\> \<expr\_2\>  
